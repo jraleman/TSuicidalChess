@@ -25,6 +25,7 @@ export const Constants = {
   // UI settings
   SIDEBAR_WIDTH: 250, // Width of the sidebar
   BUTTON_HEIGHT: 40, // Height of buttons
+  SHOW_COORDINATES: true, // Show coordinates on board squares
   
   // Game rules specific to Anti-Chess
   MUST_CAPTURE: true, // In Anti-Chess, capturing is mandatory if possible
