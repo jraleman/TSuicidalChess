@@ -58,10 +58,18 @@ export class Piece {
         ]);
         break;
       case PieceType.QUEEN:
-        graphics.drawStar(pieceSize/2, pieceSize/2, 5, pieceSize/2, pieceSize/4);
+        graphics.drawPolygon([
+          pieceSize/2, 1,
+          pieceSize, pieceSize,
+          0, pieceSize
+        ]);
         break;
       case PieceType.KING:
-        graphics.drawStar(pieceSize/2, pieceSize/2, 6, pieceSize/2, pieceSize/3);
+        graphics.drawPolygon([
+          pieceSize/2, 0,
+          pieceSize, pieceSize,
+          0, pieceSize
+        ]);
         break;
     }
     

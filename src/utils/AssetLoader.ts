@@ -2,89 +2,84 @@
  * AssetLoader class for Anti-Chess
  * 
  * Responsibilities:
- * - Loads and manages game assets (textures, images, etc.)
+ * - Loads and manages game assets (images, sprites, etc.)
  * - Provides access to loaded assets
- * - Handles asset loading states
- * - Manages asset paths and organization
+ * - Handles loading errors
  */
 
 import * as PIXI from 'pixi.js';
-import { PieceType, Color } from './Types';
 import { Constants } from './Constants';
+import { PieceType, Color } from './Types';
 
 export class AssetLoader {
-  private textures: Map<string, PIXI.Texture>;
-  private isLoaded: boolean;
-  private basePath: string;
+  private static instance: AssetLoader;
+  private assets: Map<string, PIXI.Texture>;
+  private loadingPromise: Promise<void> | null;
   
-  constructor() {
-    this.textures = new Map();
-    this.isLoaded = false;
-    this.basePath = Constants.PIECE_SPRITE_PATH;
+  private constructor() {
+    this.assets = new Map();
+    this.loadingPromise = null;
+  }
+  
+  public static getInstance(): AssetLoader {
+    if (!AssetLoader.instance) {
+      AssetLoader.instance = new AssetLoader();
+    }
+    return AssetLoader.instance;
   }
   
   public async loadAssets(): Promise<void> {
-    try {
-      // Create a list of all piece textures to load
-      const pieceTypes = Object.values(PieceType);
-      const colors = Object.values(Color);
-      
-      // Load textures for each piece type and color combination
-      for (const type of pieceTypes) {
-        for (const color of colors) {
-          const key = this.getAssetKey(type, color);
-          const path = this.getAssetPath(type, color);
-          
-          try {
-            // Load the texture
-            const texture = await PIXI.Assets.load(path);
-            this.textures.set(key, texture);
-          } catch (error) {
-            console.warn(`Failed to load texture for ${key}:`, error);
-            // Create a fallback texture if loading fails
-            this.createFallbackTexture(type, color);
+    if (this.loadingPromise) {
+      return this.loadingPromise;
+    }
+    
+    this.loadingPromise = (async () => {
+      try {
+        // Create fallback textures for pieces
+        this.createFallbackTextures();
+        
+        // Define assets to load
+        const assets = {
+          board_background: 'assets/images/board_background.png',
+          highlight: 'assets/images/highlight.png',
+          capture_highlight: 'assets/images/capture_highlight.png'
+        };
+        
+        // Load all assets
+        const loadedAssets = await PIXI.Assets.load(assets);
+        
+        // Store loaded textures
+        Object.entries(loadedAssets).forEach(([key, resource]) => {
+          if (resource instanceof PIXI.Texture) {
+            this.assets.set(key, resource);
           }
-        }
+        });
+      } catch (error) {
+        console.warn('Error loading assets, using fallback graphics:', error);
       }
-      
-      this.isLoaded = true;
-    } catch (error) {
-      console.error('Failed to load assets:', error);
-      throw error;
+    })();
+    
+    return this.loadingPromise;
+  }
+  
+  private createFallbackTextures(): void {
+    // Create fallback textures for each piece type and color
+    const pieceTypes = Object.values(PieceType);
+    const colors = Object.values(Color);
+    
+    for (const type of pieceTypes) {
+      for (const color of colors) {
+        const key = `${color}_${type}`;
+        const texture = this.createFallbackPieceTexture(type, color);
+        this.assets.set(key, texture);
+      }
     }
   }
   
-  public getPieceTexture(type: PieceType, color: Color): PIXI.Texture {
-    const key = this.getAssetKey(type, color);
-    const texture = this.textures.get(key);
-    
-    if (!texture) {
-      console.warn(`Texture not found for ${key}, creating fallback`);
-      return this.createFallbackTexture(type, color);
-    }
-    
-    return texture;
-  }
-  
-  public isAssetsLoaded(): boolean {
-    return this.isLoaded;
-  }
-  
-  public getAssetPath(type: PieceType, color: Color): string {
-    // Construct the path to the asset
-    // Format: assets/images/pieces/{color}/{type}.png
-    return `${this.basePath}${color}/${type}.png`;
-  }
-  
-  private getAssetKey(type: PieceType, color: Color): string {
-    // Create a unique key for the texture
-    return `${color}_${type}`;
-  }
-  
-  private createFallbackTexture(type: PieceType, color: Color): PIXI.Texture {
-    // Create a simple colored rectangle as a fallback texture
+  private createFallbackPieceTexture(type: PieceType, color: Color): PIXI.Texture {
     const graphics = new PIXI.Graphics();
     const size = Constants.SQUARE_SIZE * 0.7;
+    const margin = (Constants.SQUARE_SIZE - size) / 2;
     
     // Set the color based on piece color
     const fillColor = color === Color.WHITE ? 0xFFFFFF : 0x000000;
@@ -140,10 +135,6 @@ export class AssetLoader {
       height: size,
     });
     
-    // Store the texture
-    const key = this.getAssetKey(type, color);
-    this.textures.set(key, texture);
-    
     return texture;
   }
   
@@ -181,5 +172,23 @@ export class AssetLoader {
       case PieceType.KING: return 'K';
       default: return '';
     }
+  }
+  
+  public getTexture(key: string): PIXI.Texture {
+    const texture = this.assets.get(key);
+    if (!texture) {
+      throw new Error(`Texture not found: ${key}`);
+    }
+    return texture;
+  }
+  
+  public createSprite(key: string): PIXI.Sprite {
+    const texture = this.getTexture(key);
+    return new PIXI.Sprite(texture);
+  }
+  
+  public createPieceSprite(pieceType: string, color: string): PIXI.Sprite {
+    const key = `${color}_${pieceType}`;
+    return this.createSprite(key);
   }
 } 

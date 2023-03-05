@@ -17,6 +17,7 @@ import { Constants } from '@/utils/Constants';
 import { Piece } from '@/entities/Piece';
 import { Square } from '@/entities/Square';
 import { Color } from '@/utils/Types';
+import { AssetLoader } from '@/utils/AssetLoader';
 
 export class Game {
   private app: PIXI.Application;
@@ -24,6 +25,8 @@ export class Game {
   private gameState: GameState;
   private ui: UI;
   private selectedPiece: Piece | null = null;
+  private assetLoader: AssetLoader;
+  private initialized: boolean = false;
   
   constructor() {
     // Initialize PIXI application
@@ -31,11 +34,17 @@ export class Game {
       width: Constants.BOARD_SIZE * Constants.SQUARE_SIZE + Constants.SIDEBAR_WIDTH,
       height: Constants.BOARD_SIZE * Constants.SQUARE_SIZE,
       backgroundColor: 0xEEEEEE,
-      antialias: true
+      antialias: true,
+      resolution: window.devicePixelRatio || 1,
+      autoDensity: true,
+      powerPreference: 'high-performance'
     });
     
     // Store the application as a global reference for pieces
     (globalThis as any).__PIXI_APP = this.app;
+    
+    // Initialize asset loader
+    this.assetLoader = AssetLoader.getInstance();
     
     // Set up game state
     this.gameState = new GameState();
@@ -45,15 +54,21 @@ export class Game {
     this.ui = new UI(this.gameState);
   }
   
-  public init(): void {
-    // Add the PIXI canvas to the DOM
-    document.body.appendChild(this.app.view as HTMLCanvasElement);
-    
-    // Load assets and initialize game components
-    this.loadAssets().then(() => {
+  public async init(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+
+    try {
+      // Add the PIXI canvas to the DOM
+      document.body.appendChild(this.app.view as HTMLCanvasElement);
+      
+      // Load assets first
+      await this.assetLoader.loadAssets();
+      
       // Initialize the board and UI
-      this.board.init();
-      this.ui.init();
+      await this.board.init();
+      await this.ui.init();
       
       // Add board and UI containers to the stage
       this.app.stage.addChild(this.board.getContainer());
@@ -70,15 +85,32 @@ export class Game {
       
       // Update UI initially
       this.ui.updateStatus();
-    });
+      
+      // Handle window resize
+      window.addEventListener('resize', this.onResize.bind(this));
+      this.onResize();
+      
+      this.initialized = true;
+      
+    } catch (error) {
+      console.error('Failed to initialize game:', error);
+      // Clean up any partially initialized resources
+      this.cleanup();
+      throw error;
+    }
   }
   
-  private loadAssets(): Promise<void> {
-    return new Promise((resolve) => {
-      // Since we're using placeholders for now, there are no assets to load
-      // This would typically load piece sprites, etc.
-      resolve();
-    });
+  private cleanup(): void {
+    // Remove event listeners
+    window.removeEventListener('resize', this.onResize.bind(this));
+    
+    // Remove the canvas from the DOM
+    if (this.app.view.parentNode) {
+      this.app.view.parentNode.removeChild(this.app.view);
+    }
+    
+    // Destroy PIXI application
+    this.app.destroy(true);
   }
   
   public start(): void {
@@ -108,10 +140,6 @@ export class Game {
   }
   
   private setupEventListeners(): void {
-    // Handle window resize
-    window.addEventListener('resize', this.onResize.bind(this));
-    this.onResize();
-    
     // Set up board square interaction
     this.board.getSquares().forEach((row: Square[]) => {
       row.forEach((square: Square) => {
@@ -189,6 +217,7 @@ export class Game {
       Constants.BOARD_SIZE * Constants.SQUARE_SIZE
     );
     
+    // Update renderer size
     this.app.renderer.resize(width, height);
     
     // Update UI layout
