@@ -33,15 +33,44 @@ export class Player {
   }
   
   public addPiece(piece: Piece): void {
-    // TODO: Add a piece to the player's collection
+    // Add a piece to the player's collection
+    // Verify the piece matches the player's color
+    if (piece.getColor() !== this.color) {
+      throw new Error(`Cannot add piece of color ${piece.getColor()} to player of color ${this.color}`);
+    }
+    
+    // Check if the piece is already in the collection
+    if (this.pieces.includes(piece)) {
+      throw new Error('Piece is already in the player\'s collection');
+    }
+    
+    this.pieces.push(piece);
   }
   
   public removePiece(piece: Piece): void {
-    // TODO: Remove a piece from the player's collection
+    // Remove a piece from the player's collection
+    const index = this.pieces.indexOf(piece);
+    
+    if (index === -1) {
+      throw new Error('Piece not found in player\'s collection');
+    }
+    
+    this.pieces.splice(index, 1);
   }
   
   public addCapturedPiece(piece: Piece): void {
-    // TODO: Add a captured piece to the player's collection
+    // Add a captured piece to the player's collection
+    // Verify the piece is of the opposite color
+    if (piece.getColor() === this.color) {
+      throw new Error(`Cannot add piece of color ${piece.getColor()} to captured pieces of player of color ${this.color}`);
+    }
+    
+    // Check if the piece is already in the captured collection
+    if (this.capturedPieces.includes(piece)) {
+      throw new Error('Piece is already in the player\'s captured pieces');
+    }
+    
+    this.capturedPieces.push(piece);
   }
   
   public getCapturedPieces(): Piece[] {
