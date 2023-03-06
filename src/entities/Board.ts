@@ -15,12 +15,14 @@ import { Square } from './Square';
 import { PieceType, Color } from '@/utils/Types';
 import { Constants } from '@/utils/Constants';
 import { MoveValidator } from '@/utils/MoveValidator';
+import { AssetLoader } from '@/utils/AssetLoader';
 
 export class Board {
   private squares: Square[][];
   private pieces: Piece[];
   private container: PIXI.Container;
   private moveValidator: MoveValidator;
+  private assetLoader: AssetLoader;
   
   constructor() {
     // Initialize the board container
@@ -32,11 +34,12 @@ export class Board {
     
     // Initialize move validator (will be set properly in init())
     this.moveValidator = null as unknown as MoveValidator;
+    this.assetLoader = AssetLoader.getInstance();
   }
   
-  public init(): void {
+  public async init(): Promise<void> {
     // Set up the board
-    this.createSquares();
+    await this.createSquares();
     
     // Position the board
     this.container.position.set(0, 0);
@@ -45,7 +48,7 @@ export class Board {
     this.moveValidator = new MoveValidator(this);
   }
   
-  private createSquares(): void {
+  private async createSquares(): Promise<void> {
     // Create 8x8 grid of squares
     for (let y = 0; y < Constants.BOARD_SIZE; y++) {
       const row: Square[] = [];
@@ -251,5 +254,19 @@ export class Board {
   public update(delta: number): void {
     // Update all pieces
     this.pieces.forEach(piece => piece.update());
+  }
+  
+  public getSquareAtPosition(position: PIXI.Point): Square | null {
+    // Convert global position to board coordinates
+    const boardPos = this.container.toLocal(position);
+    const x = Math.floor(boardPos.x / Constants.SQUARE_SIZE);
+    const y = Math.floor(boardPos.y / Constants.SQUARE_SIZE);
+    
+    // Check if coordinates are within board bounds
+    if (x >= 0 && x < Constants.BOARD_SIZE && y >= 0 && y < Constants.BOARD_SIZE) {
+      return this.squares[y][x];
+    }
+    
+    return null;
   }
 } 

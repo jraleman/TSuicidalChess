@@ -27,6 +27,10 @@ export class Game {
   private selectedPiece: Piece | null = null;
   private assetLoader: AssetLoader;
   private initialized: boolean = false;
+  private isDragging: boolean = false;
+  private dragOffset: PIXI.Point = new PIXI.Point();
+  private originalPosition: PIXI.Point = new PIXI.Point();
+  private draggedSprite: PIXI.Sprite | null = null;
   
   constructor() {
     // Initialize PIXI application
@@ -147,9 +151,10 @@ export class Game {
         graphics.eventMode = 'static';
         graphics.cursor = 'pointer';
         
-        // Handle square click (select and move pieces)
-        graphics.on('pointerdown', () => {
+        // Handle square click/touch (select and move pieces)
+        graphics.on('pointerdown', (event: PIXI.FederatedPointerEvent) => {
           const position = square.getPosition();
+          const piece = square.getPiece();
           
           // If we already have a piece selected
           if (this.selectedPiece) {
@@ -187,9 +192,6 @@ export class Game {
             this.board.clearHighlights();
           } else {
             // Try to select a piece
-            const piece = square.getPiece();
-            
-            // Can only select pieces of the current player's color
             if (piece && piece.getColor() === this.gameState.getCurrentPlayer()) {
               this.selectedPiece = piece;
               
@@ -199,29 +201,147 @@ export class Game {
               // Highlight valid moves for this piece
               const validMoves = this.board.findLegalMoves(piece);
               this.board.highlightSquares(validMoves);
+              
+              // Start dragging for both mouse and touch events
+              this.startDragging(piece, event);
             }
           }
         });
       });
     });
+    
+    // Set up global pointer events for dragging
+    this.app.stage.eventMode = 'static';
+    
+    this.app.stage.on('pointermove', (event: PIXI.FederatedPointerEvent) => {
+      if (this.isDragging && this.draggedSprite) {
+        const newPosition = event.getLocalPosition(this.app.stage);
+        this.draggedSprite.position.set(
+          newPosition.x - this.dragOffset.x,
+          newPosition.y - this.dragOffset.y
+        );
+      }
+    });
+    
+    this.app.stage.on('pointerup', () => {
+      if (this.isDragging && this.draggedSprite) {
+        this.endDragging();
+      }
+    });
+    
+    this.app.stage.on('pointerupoutside', () => {
+      if (this.isDragging && this.draggedSprite) {
+        this.endDragging();
+      }
+    });
+  }
+  
+  private startDragging(piece: Piece, event: PIXI.FederatedPointerEvent): void {
+    this.isDragging = true;
+    this.selectedPiece = piece;
+    
+    // Create a sprite for dragging
+    const sprite = piece.getSprite();
+    this.draggedSprite = new PIXI.Sprite(sprite.texture);
+    this.draggedSprite.anchor.set(0.5);
+    this.draggedSprite.alpha = 0.8;
+    
+    // Calculate drag offset
+    const localPos = event.getLocalPosition(sprite);
+    this.dragOffset = new PIXI.Point(localPos.x, localPos.y);
+    
+    // Store original position
+    this.originalPosition = new PIXI.Point(sprite.x, sprite.y);
+    
+    // Add dragged sprite to stage
+    this.app.stage.addChild(this.draggedSprite);
+    
+    // Hide original piece
+    sprite.visible = false;
+  }
+  
+  private endDragging(): void {
+    if (!this.draggedSprite || !this.selectedPiece) {
+      return;
+    }
+    
+    // Get the square under the dragged piece
+    const dropPosition = this.draggedSprite.position;
+    const square = this.board.getSquareAtPosition(dropPosition);
+    
+    if (square) {
+      const fromPos = this.selectedPiece.getPosition();
+      const toPos = square.getPosition();
+      
+      // Try to move the piece
+      const success = this.board.movePiece(
+        fromPos.x, fromPos.y,
+        toPos.x, toPos.y
+      );
+      
+      if (success) {
+        // Record the move in game state
+        this.gameState.recordMove({
+          fromX: fromPos.x,
+          fromY: fromPos.y,
+          toX: toPos.x,
+          toY: toPos.y,
+          piece: this.selectedPiece.getType(),
+          color: this.selectedPiece.getColor(),
+          isCapture: square.isOccupied(),
+          capturedPiece: square.getPiece()?.getType()
+        });
+        
+        // Switch turns
+        this.gameState.switchPlayer();
+        this.ui.updateStatus();
+        this.ui.updateCapturedPieces();
+        
+        // Check for forced captures on the next turn
+        this.checkForcedCaptures();
+      } else {
+        // Move piece back to original position
+        this.selectedPiece.getSprite().position.copyFrom(this.originalPosition);
+      }
+    }
+    
+    // Clean up dragging state
+    this.draggedSprite.destroy();
+    this.draggedSprite = null;
+    this.selectedPiece.getSprite().visible = true;
+    this.selectedPiece = null;
+    this.isDragging = false;
+    this.board.clearHighlights();
   }
   
   private onResize(): void {
-    // Adjust the canvas size based on window dimensions
-    const width = Math.min(
-      window.innerWidth,
-      Constants.BOARD_SIZE * Constants.SQUARE_SIZE + Constants.SIDEBAR_WIDTH
-    );
-    const height = Math.min(
-      window.innerHeight,
-      Constants.BOARD_SIZE * Constants.SQUARE_SIZE
-    );
+    // Calculate the scale factor based on window size
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    const targetWidth = Constants.BOARD_SIZE * Constants.SQUARE_SIZE + Constants.SIDEBAR_WIDTH;
+    const targetHeight = Constants.BOARD_SIZE * Constants.SQUARE_SIZE;
+    
+    const scaleX = windowWidth / targetWidth;
+    const scaleY = windowHeight / targetHeight;
+    const scale = Math.min(scaleX, scaleY, 1); // Don't scale up beyond original size
     
     // Update renderer size
-    this.app.renderer.resize(width, height);
+    this.app.renderer.resize(windowWidth, windowHeight);
     
-    // Update UI layout
-    this.ui.resize(width, height);
+    // Center the game board
+    const boardContainer = this.board.getContainer();
+    const uiContainer = this.ui.getContainer();
+    
+    boardContainer.scale.set(scale);
+    uiContainer.scale.set(scale);
+    
+    // Position containers
+    const boardX = (windowWidth - targetWidth * scale) / 2;
+    const boardY = (windowHeight - targetHeight * scale) / 2;
+    
+    boardContainer.position.set(boardX, boardY);
+    uiContainer.position.set(boardX + targetWidth * scale, boardY);
   }
   
   private checkForcedCaptures(): void {

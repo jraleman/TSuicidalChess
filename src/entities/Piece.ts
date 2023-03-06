@@ -59,16 +59,22 @@ export class Piece {
         break;
       case PieceType.QUEEN:
         graphics.drawPolygon([
-          pieceSize/2, 1,
-          pieceSize, pieceSize,
-          0, pieceSize
+          pieceSize/2, 0, // Top point
+          pieceSize * 0.8, pieceSize * 0.3, // Upper right point
+          pieceSize, pieceSize, // Bottom right
+          0, pieceSize, // Bottom left
+          pieceSize * 0.2, pieceSize * 0.3 // Upper left point
         ]);
         break;
       case PieceType.KING:
         graphics.drawPolygon([
-          pieceSize/2, 0,
-          pieceSize, pieceSize,
-          0, pieceSize
+          pieceSize/2, 0, // Top point
+          pieceSize * 0.7, pieceSize * 0.2, // Upper right
+          pieceSize, pieceSize, // Bottom right
+          pieceSize * 0.7, pieceSize * 0.7, // Inner right
+          pieceSize * 0.3, pieceSize * 0.7, // Inner left
+          0, pieceSize, // Bottom left
+          pieceSize * 0.3, pieceSize * 0.2 // Upper left
         ]);
         break;
     }
