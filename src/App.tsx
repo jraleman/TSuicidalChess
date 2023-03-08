@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, Environment } from '@react-three/drei';
 import { Suspense } from 'react';
+import { ChessBoard } from './components/board/ChessBoard';
 
 function App() {
   return (
@@ -13,12 +14,24 @@ function App() {
           <Canvas
             camera={{ position: [0, 5, 8], fov: 50 }}
             className="w-full h-full"
+            shadows
           >
             <Suspense fallback={null}>
               <ambientLight intensity={0.5} />
-              <directionalLight position={[10, 10, 5]} intensity={1} />
+              <directionalLight 
+                position={[10, 10, 5]} 
+                intensity={1} 
+                castShadow
+                shadow-mapSize={[1024, 1024]}
+                shadow-camera-far={50}
+                shadow-camera-left={-10}
+                shadow-camera-right={10}
+                shadow-camera-top={10}
+                shadow-camera-bottom={-10}
+              />
               
-              {/* Game components will be added here */}
+              <ChessBoard />
+              <Environment preset="sunset" />
               
               <OrbitControls
                 enablePan={false}
