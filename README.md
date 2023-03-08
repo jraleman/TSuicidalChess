@@ -1,52 +1,55 @@
-# Anti-Chess
+# 3D Anti-Chess Game
 
-A modern implementation of Anti-Chess (also known as Losing Chess or Giveaway Chess) built with PixiJS and TypeScript.
+A simple and interactive 3D anti-chess game where players lose by capturing the opponent's pieces. Users can select either black or white pieces at the start.
 
-## Game Rules
+## Requirements
+- Players select black or white pieces.
+- Earn points for each piece the opponent captures.
+- Implement anti-chess rules (captures are mandatory, goal is to lose all pieces).
+- 3D interactive chessboard.
+- Piece selection and movement logic.
+- Basic UI for score tracking.
+- Include user-friendly UI for easy interaction.
 
-In Anti-Chess, the objective is to lose all your pieces:
+## Tech Stack
+- **Frontend:** React, Three.js, TypeScript
+- **Styling:** Tailwind CSS
+- **State Management:** Zustand
+- **Bundler:** Vite
 
-- Capturing is mandatory when possible
-- The king has no special status (no check or checkmate)
-- Pawns can promote when reaching the opposite end of the board
-- The player who loses all their pieces first wins the game
+## Milestones
 
-## Project Structure
+### Milestone 1: Project Setup
+- Initialize React project with Vite.
+- Install and configure Tailwind CSS v3.
+- Set up Three.js scene.
 
-- `src/`: Source code files
-  - `core/`: Core game logic and initialization
-  - `entities/`: Game objects (Board, Pieces, etc.)
-  - `utils/`: Utility classes and helpers
-  - `ui/`: User interface components
-  - `assets/`: Asset management
-- `public/`: Static assets and HTML entry point
-  - `assets/`: Game assets (images, sounds)
+### Milestone 2: 3D Chessboard
+- Create a basic 3D chessboard layout.
+- Render chess pieces in 3D (white and black).
 
-## Development
+### Milestone 3: Game Logic
+- Implement basic anti-chess rules.
+- Allow users to select and move pieces.
+- Enable basic piece movements
+- Validate moves according to anti-chess rules.
 
-### Prerequisites
+### Milestone 4: Piece Capture and Scoring
+- Implement forced captures logic.
+- Update scores upon piece capture.
+- Display real-time score updates.
 
-- Node.js (v14+)
-- npm or yarn
+### Milestone 5: Game Completion
+- Polish UI/UX elements for a smooth user experience
+- Detect game completion and announce the winner.
+- Implement option to restart the game.
+- Final testing and bug fixing.
 
-### Getting Started
+## Future Enhancements
 
-1. Clone the repository
-2. Install dependencies:
-   ```
-   npm install
-   ```
-3. Start the development server:
-   ```
-   npm run dev
-   ```
-4. Open your browser to `http://localhost:3000`
-
-### Building for Production
-
-```
-npm run build
-```
+- Multiplayer mode
+- Animated piece movements
+- Leaderboard integration
 
 ## License
 
