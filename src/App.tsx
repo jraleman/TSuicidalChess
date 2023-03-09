@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import { Suspense } from 'react';
 import { ChessBoard } from './components/board/ChessBoard';
+import { ChessPieces } from './components/pieces/ChessPieces';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
               />
               
               <ChessBoard />
+              <ChessPieces />
               <Environment preset="sunset" />
               
               <OrbitControls

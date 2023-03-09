@@ -9,8 +9,35 @@ interface GameStore extends GameState {
   updateScore: (color: PieceColor, points: number) => void;
 }
 
+const createPiece = (type: ChessPiece['type'], color: PieceColor, position: Position): ChessPiece => ({
+  id: `${type}-${color}-${position.x}-${position.y}`,
+  type,
+  color,
+  position,
+  hasMoved: false,
+});
+
+const createInitialBoard = (): (ChessPiece | null)[][] => {
+  const board = Array(8).fill(null).map(() => Array(8).fill(null));
+  
+  // Initialize pawns
+  for (let i = 0; i < 8; i++) {
+    board[1][i] = createPiece('pawn', 'white', { x: i, y: 1 });
+    board[6][i] = createPiece('pawn', 'black', { x: i, y: 6 });
+  }
+
+  // Initialize other pieces
+  const backRankPieces: ChessPiece['type'][] = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'];
+  for (let i = 0; i < 8; i++) {
+    board[0][i] = createPiece(backRankPieces[i], 'white', { x: i, y: 0 });
+    board[7][i] = createPiece(backRankPieces[i], 'black', { x: i, y: 7 });
+  }
+
+  return board;
+};
+
 const createInitialState = (): GameState => ({
-  board: Array(8).fill(null).map(() => Array(8).fill(null)),
+  board: createInitialBoard(),
   currentTurn: 'white',
   selectedPiece: null,
   possibleMoves: [],
