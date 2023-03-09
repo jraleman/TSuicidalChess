@@ -3,13 +3,44 @@ import { Group } from 'three';
 import { ChessSquare } from './ChessSquare';
 import { useGameStore } from '../../context/gameStore';
 import { Position } from '../../models/types';
+import { soundManager } from '../../utils/soundManager';
 
 export const ChessBoard = () => {
   const boardRef = useRef<Group>(null);
-  const { selectedPiece, possibleMoves, selectPiece } = useGameStore();
+  const { selectedPiece, possibleMoves, movePiece, board } = useGameStore();
 
   const handleSquareClick = (position: Position) => {
-    // Implementation will be added later
+    if (!selectedPiece) return;
+
+    // Check if the clicked position is a valid move
+    const isValidMove = possibleMoves.some(
+      move => move.x === position.x && move.y === position.y
+    );
+
+    if (isValidMove) {
+      // Check if there's a piece to capture
+      const targetPiece = board[position.y][position.x];
+      
+      // Trigger piece movement animation
+      const event = new CustomEvent('pieceMove', {
+        detail: { piece: selectedPiece, to: position }
+      });
+      window.dispatchEvent(event);
+
+      // If there's a piece to capture, trigger capture animation and sound
+      if (targetPiece) {
+        const captureEvent = new CustomEvent('pieceCapture', {
+          detail: { piece: targetPiece }
+        });
+        window.dispatchEvent(captureEvent);
+        soundManager.playCaptureSound();
+      }
+
+      // Update game state after animations
+      setTimeout(() => {
+        movePiece(selectedPiece.position, position);
+      }, 500); // Match this with animation duration
+    }
   };
 
   return (

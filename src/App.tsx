@@ -3,6 +3,7 @@ import { OrbitControls, Environment } from '@react-three/drei';
 import { Suspense } from 'react';
 import { ChessBoard } from './components/board/ChessBoard';
 import { ChessPieces } from './components/pieces/ChessPieces';
+import { SoundToggle } from './components/ui/SoundToggle';
 
 function App() {
   return (
@@ -46,7 +47,8 @@ function App() {
           </Canvas>
         </div>
 
-        {/* Score and controls will be added here */}
+        {/* Sound toggle */}
+        <SoundToggle />
       </div>
     </div>
   );
