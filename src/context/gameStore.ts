@@ -120,7 +120,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       scores: newScores,
       currentTurn: currentTurn === 'white' ? 'black' : 'white',
       gameOver: whitePieces === 0 || blackPieces === 0,
-      winner: whitePieces === 0 ? 'black' : blackPieces === 0 ? 'white' : null
+      winner: whitePieces === 0 ? 'white' : blackPieces === 0 ? 'black' : null
     });
   },
 

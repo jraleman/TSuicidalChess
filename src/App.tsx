@@ -14,7 +14,7 @@ function App() {
       <header className="bg-gray-800 shadow-lg">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-white">3D Anti-Chess</h1>
+            <h1 className="text-2xl font-bold text-white">TSuicidalChess ♟♟️</h1>
             <SoundToggle />
           </div>
         </div>
