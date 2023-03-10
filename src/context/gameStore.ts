@@ -8,6 +8,11 @@ interface GameStore extends GameState {
   movePiece: (from: Position, to: Position) => void;
   calculatePossibleMoves: (piece: ChessPiece) => Position[];
   updateScore: (color: PieceColor, points: number) => void;
+  setCurrentTurn: (turn: PieceColor) => void;
+  setGameOver: (isOver: boolean) => void;
+  setSelectedPiece: (piece: ChessPiece | null) => void;
+  setPossibleMoves: (moves: Position[]) => void;
+  switchTurn: () => void;
 }
 
 const createPiece = (type: ChessPiece['type'], color: PieceColor, position: Position): ChessPiece => ({
@@ -84,32 +89,24 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const validMoves = getValidMoves(selectedPiece, board);
     if (!validMoves.some(move => move.x === to.x && move.y === to.y)) return;
 
-    // Check if there are forced captures
-    const hasForced = hasForcedCapture(board, currentTurn);
-    const targetPiece = board[to.y][to.x];
-    
-    // If there are forced captures, only allow capture moves
-    if (hasForced && !targetPiece) return;
-
-    // Create new board state
+    // Create new board with the move
     const newBoard = board.map(row => [...row]);
+    newBoard[to.y][to.x] = newBoard[from.y][from.x];
     newBoard[from.y][from.x] = null;
-    
-    // Update piece position and hasMoved status
-    const movedPiece = {
-      ...selectedPiece,
-      position: to,
-      hasMoved: true,
-    };
-    newBoard[to.y][to.x] = movedPiece;
 
-    // Update score if a piece was captured
-    if (targetPiece) {
-      const newScores = {
-        ...scores,
-        [targetPiece.color]: scores[targetPiece.color] + 1,
+    // Update piece position
+    if (newBoard[to.y][to.x]) {
+      newBoard[to.y][to.x] = {
+        ...newBoard[to.y][to.x]!,
+        position: to,
+        hasMoved: true
       };
-      set({ scores: newScores });
+    }
+
+    // Update scores if a piece was captured
+    const newScores = { ...scores };
+    if (board[to.y][to.x]) {
+      newScores[currentTurn] += 1;
     }
 
     // Check for game over (all pieces captured)
@@ -120,23 +117,33 @@ export const useGameStore = create<GameStore>((set, get) => ({
       board: newBoard,
       selectedPiece: null,
       possibleMoves: [],
+      scores: newScores,
       currentTurn: currentTurn === 'white' ? 'black' : 'white',
       gameOver: whitePieces === 0 || blackPieces === 0,
-      winner: whitePieces === 0 ? 'black' : blackPieces === 0 ? 'white' : null,
+      winner: whitePieces === 0 ? 'black' : blackPieces === 0 ? 'white' : null
     });
   },
 
-  calculatePossibleMoves: (piece: ChessPiece): Position[] => {
+  calculatePossibleMoves: (piece: ChessPiece) => {
     const { board } = get();
     return getValidMoves(piece, board);
   },
 
   updateScore: (color: PieceColor, points: number) => {
-    set((state) => ({
+    const { scores } = get();
+    set({
       scores: {
-        ...state.scores,
-        [color]: state.scores[color] + points,
-      },
-    }));
+        ...scores,
+        [color]: scores[color] + points
+      }
+    });
   },
+
+  setCurrentTurn: (turn: PieceColor) => set({ currentTurn: turn }),
+  setGameOver: (isOver: boolean) => set({ gameOver: isOver }),
+  setSelectedPiece: (piece: ChessPiece | null) => set({ selectedPiece: piece }),
+  setPossibleMoves: (moves: Position[]) => set({ possibleMoves: moves }),
+  switchTurn: () => set((state) => ({
+    currentTurn: state.currentTurn === 'white' ? 'black' : 'white'
+  })),
 })); 

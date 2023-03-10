@@ -4,15 +4,26 @@ import { Suspense } from 'react';
 import { ChessBoard } from './components/board/ChessBoard';
 import { ChessPieces } from './components/pieces/ChessPieces';
 import { SoundToggle } from './components/ui/SoundToggle';
+import { StatusBar } from './components/ui/StatusBar';
+import { GameOverModal } from './components/ui/GameOverModal';
 
 function App() {
   return (
-    <div className="w-full h-screen bg-gray-900">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-white text-center mb-8">3D Anti-Chess</h1>
-        
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+      {/* Header */}
+      <header className="bg-gray-800 shadow-lg">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-white">3D Anti-Chess</h1>
+            <SoundToggle />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
         {/* Game container */}
-        <div className="w-full aspect-square max-w-4xl mx-auto rounded-lg overflow-hidden">
+        <div className="w-full aspect-square max-w-4xl mx-auto rounded-lg overflow-hidden shadow-2xl bg-gray-800">
           <Canvas
             camera={{ position: [0, 5, 8], fov: 50 }}
             className="w-full h-full"
@@ -47,9 +58,12 @@ function App() {
           </Canvas>
         </div>
 
-        {/* Sound toggle */}
-        <SoundToggle />
-      </div>
+        {/* Status Bar */}
+        <StatusBar />
+      </main>
+
+      {/* Game Over Modal */}
+      <GameOverModal />
     </div>
   );
 }
