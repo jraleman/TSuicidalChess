@@ -7,7 +7,6 @@ const isWithinBoard = (pos: Position): boolean => {
 const getPawnMoves = (piece: ChessPiece, board: (ChessPiece | null)[][]): Position[] => {
   const moves: Position[] = [];
   const direction = piece.color === 'white' ? 1 : -1;
-  const startRow = piece.color === 'white' ? 1 : 6;
 
   // Forward moves
   const forward1 = { x: piece.position.x, y: piece.position.y + direction };

@@ -43,11 +43,9 @@ export const ChessPieces = () => {
 
   return (
     <group ref={groupRef}>
-      {board.flat().map((piece, index) => {
+      {board.flat().map((piece) => {
         if (!piece) return null;
 
-        const row = Math.floor(index / 8);
-        const col = index % 8;
         const position = getInitialPosition(piece);
         const isSelected = selectedPiece?.id === piece.id;
         const isMoving = movingPiece?.piece.id === piece.id;

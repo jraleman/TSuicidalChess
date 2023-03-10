@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Mesh, Group } from 'three';
+import { Group } from 'three';
 import { PieceColor, PieceType } from '../../models/types';
 
 interface PieceModelProps {

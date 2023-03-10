@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { Group } from 'three';
 import { PieceColor, PieceType, Position } from '../../models/types';
 import { getPieceModel } from './PieceModels';
 import { usePieceAnimation } from '../../hooks/usePieceAnimation';
