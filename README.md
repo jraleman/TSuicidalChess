@@ -2,6 +2,8 @@
 
 A modern 3D anti-chess game built with React, Three.js, and TypeScript. In this unique twist on chess, players must strategically lose their pieces to win the game.
 
+[Live Demo](https://jraleman.com/TSuicidalChess)
+
 ## 🎮 Game Rules
 
 ### Anti-Chess Rules
@@ -26,7 +28,7 @@ A modern 3D anti-chess game built with React, Three.js, and TypeScript. In this 
 ### Installation
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/TSuicidalChess.git
+git clone https://github.com/jraleman/TSuicidalChess.git
 cd TSuicidalChess
 ```
 
@@ -48,6 +50,29 @@ npm run dev
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
 - `npm run host` - Start server with host access
+- `npm run deploy` - Deploy to GitHub Pages
+
+## 🌐 Deployment
+
+### GitHub Pages Deployment
+1. Build the project:
+```bash
+npm run build
+```
+
+2. Deploy to GitHub Pages:
+```bash
+npm run deploy
+```
+
+3. The site will be available at: https://jraleman.com/TSuicidalChess/
+
+### Local Production Preview
+To preview the production build locally:
+```bash
+npm run build
+npm run preview
+```
 
 ## 🛠️ Tech Stack
 
