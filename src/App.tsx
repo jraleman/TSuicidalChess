@@ -6,8 +6,31 @@ import { ChessPieces } from './components/pieces/ChessPieces';
 import { SoundToggle } from './components/ui/SoundToggle';
 import { StatusBar } from './components/ui/StatusBar';
 import { GameOverModal } from './components/ui/GameOverModal';
+import { GameModeSelection } from './components/ui/GameModeSelection';
+import { LeaveRoom } from './components/ui/LeaveRoom';
+import { useGameStore } from './context/gameStore';
 
 function App() {
+  const { gameMode, playerColor } = useGameStore();
+
+  // Show game mode selection if no mode is selected
+  if (!gameMode) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+        <GameModeSelection />
+      </div>
+    );
+  }
+
+  // Show color selection if multiplayer mode is selected but no color is chosen
+  if (gameMode === 'multiplayer' && !playerColor) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+        <GameModeSelection />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
       {/* Header */}
@@ -64,6 +87,9 @@ function App() {
 
       {/* Game Over Modal */}
       <GameOverModal />
+
+      {/* Leave Room Button (only in multiplayer mode) */}
+      {gameMode === 'multiplayer' && <LeaveRoom />}
     </div>
   );
 }

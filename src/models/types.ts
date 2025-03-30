@@ -14,6 +14,17 @@ export interface ChessPiece {
   hasMoved: boolean;
 }
 
+export type GameMode = 'single' | 'multiplayer' | null;
+
+export interface Room {
+  code: string;
+  players: {
+    white?: string;
+    black?: string;
+  };
+  gameState: GameState;
+}
+
 export interface GameState {
   board: (ChessPiece | null)[][];
   currentTurn: PieceColor;
@@ -25,4 +36,7 @@ export interface GameState {
   };
   gameOver: boolean;
   winner: PieceColor | null;
+  gameMode: GameMode;
+  playerColor: PieceColor | null;
+  roomCode?: string;
 } 

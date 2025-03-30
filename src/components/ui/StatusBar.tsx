@@ -3,12 +3,21 @@ import { hasForcedCapture } from '../../utils/movementValidation';
 import { PieceColor } from '../../models/types';
 
 export const StatusBar = () => {
-  const { currentTurn, gameOver, winner, board, scores } = useGameStore();
+  const { currentTurn, gameOver, winner, board, scores, gameMode, playerColor } = useGameStore();
 
   const getStatusMessage = () => {
     if (gameOver && winner) {
       return `${winner === 'white' ? 'White' : 'Black'} Wins!`;
     }
+    
+    if (gameMode === 'multiplayer') {
+      if (currentTurn === playerColor) {
+        return "Your Turn";
+      } else {
+        return "Opponent's Turn";
+      }
+    }
+    
     return `${currentTurn === 'white' ? 'White' : 'Black'}'s Turn`;
   };
 

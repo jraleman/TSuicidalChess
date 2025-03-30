@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { GameState, PieceColor, Position, ChessPiece } from '../models/types';
+import { GameState, PieceColor, Position, ChessPiece, GameMode } from '../models/types';
 import { getValidMoves, hasForcedCapture } from '../utils/movementValidation';
+import { roomService } from '../services/roomService';
 
 interface GameStore extends GameState {
   initializeGame: () => void;
@@ -13,6 +14,9 @@ interface GameStore extends GameState {
   setSelectedPiece: (piece: ChessPiece | null) => void;
   setPossibleMoves: (moves: Position[]) => void;
   switchTurn: () => void;
+  setGameMode: (mode: GameMode) => void;
+  setPlayerColor: (color: PieceColor) => void;
+  setRoomCode: (code: string) => void;
 }
 
 const createPiece = (type: ChessPiece['type'], color: PieceColor, position: Position): ChessPiece => ({
@@ -53,6 +57,9 @@ const createInitialState = (): GameState => ({
   },
   gameOver: false,
   winner: null,
+  gameMode: null,
+  playerColor: null,
+  roomCode: undefined,
 });
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -63,7 +70,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   selectPiece: (piece: ChessPiece) => {
-    const { board, currentTurn } = get();
+    const { board, currentTurn, gameMode, playerColor, roomCode } = get();
+    
+    // In multiplayer mode, only allow selecting pieces of the player's color
+    if (gameMode === 'multiplayer' && piece.color !== playerColor) return;
     
     // Only allow selecting pieces of the current turn
     if (piece.color !== currentTurn) return;
@@ -81,7 +91,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   movePiece: (from: Position, to: Position) => {
-    const { board, selectedPiece, currentTurn, scores } = get();
+    const { board, selectedPiece, currentTurn, scores, roomCode, gameMode, playerColor } = get();
     
     if (!selectedPiece) return;
 
@@ -113,15 +123,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const whitePieces = newBoard.flat().filter(p => p?.color === 'white').length;
     const blackPieces = newBoard.flat().filter(p => p?.color === 'black').length;
 
-    set({
+    const newState: GameState = {
       board: newBoard,
       selectedPiece: null,
       possibleMoves: [],
       scores: newScores,
       currentTurn: currentTurn === 'white' ? 'black' : 'white',
       gameOver: whitePieces === 0 || blackPieces === 0,
-      winner: whitePieces === 0 ? 'white' : blackPieces === 0 ? 'black' : null
-    });
+      winner: whitePieces === 0 ? 'white' : blackPieces === 0 ? 'black' : null,
+      gameMode,
+      playerColor,
+      roomCode
+    };
+
+    set(newState);
+
+    // Update room state if in multiplayer mode
+    if (roomCode) {
+      roomService.updateRoomState(roomCode, newState);
+    }
   },
 
   calculatePossibleMoves: (piece: ChessPiece) => {
@@ -146,4 +166,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   switchTurn: () => set((state) => ({
     currentTurn: state.currentTurn === 'white' ? 'black' : 'white'
   })),
+  setGameMode: (mode: GameMode) => set({ gameMode: mode }),
+  setPlayerColor: (color: PieceColor) => set({ playerColor: color }),
+  setRoomCode: (code: string) => set({ roomCode: code }),
 })); 
