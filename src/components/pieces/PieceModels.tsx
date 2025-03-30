@@ -65,8 +65,19 @@ const Rook = ({ color, isSelected }: PieceModelProps) => {
           emissiveIntensity={isSelected ? 0.5 : 0}
         />
       </mesh>
-      {/* Body */}
+      {/* Base Decoration */}
       <mesh position={[0, 0.05, 0]} castShadow receiveShadow>
+        <torusGeometry args={[0.3, 0.02, 16, 32]} />
+        <meshStandardMaterial
+          color={color === 'white' ? '#ffffff' : '#000000'}
+          metalness={0.5}
+          roughness={0.5}
+          emissive={isSelected ? '#4ade80' : undefined}
+          emissiveIntensity={isSelected ? 0.5 : 0}
+        />
+      </mesh>
+      {/* Main Body */}
+      <mesh position={[0, 0.1, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.5, 0.4, 0.5]} />
         <meshStandardMaterial
           color={color === 'white' ? '#ffffff' : '#000000'}
@@ -76,7 +87,20 @@ const Rook = ({ color, isSelected }: PieceModelProps) => {
           emissiveIntensity={isSelected ? 0.5 : 0}
         />
       </mesh>
-      {/* Top */}
+      {/* Side Decorations */}
+      {[-1, 1].map((side) => (
+        <mesh key={side} position={[side * 0.25, 0.3, 0]} castShadow receiveShadow>
+          <boxGeometry args={[0.1, 0.2, 0.1]} />
+          <meshStandardMaterial
+            color={color === 'white' ? '#ffffff' : '#000000'}
+            metalness={0.5}
+            roughness={0.5}
+            emissive={isSelected ? '#4ade80' : undefined}
+            emissiveIntensity={isSelected ? 0.5 : 0}
+          />
+        </mesh>
+      ))}
+      {/* Top Base */}
       <mesh position={[0, 0.45, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[0.2, 0.2, 0.1, 32]} />
         <meshStandardMaterial
@@ -87,6 +111,28 @@ const Rook = ({ color, isSelected }: PieceModelProps) => {
           emissiveIntensity={isSelected ? 0.5 : 0}
         />
       </mesh>
+      {/* Battlements */}
+      {Array.from({ length: 4 }).map((_, i) => (
+        <mesh
+          key={i}
+          position={[
+            Math.cos((i * Math.PI) / 2) * 0.2,
+            0.5,
+            Math.sin((i * Math.PI) / 2) * 0.2,
+          ]}
+          castShadow
+          receiveShadow
+        >
+          <boxGeometry args={[0.1, 0.1, 0.1]} />
+          <meshStandardMaterial
+            color={color === 'white' ? '#ffffff' : '#000000'}
+            metalness={0.5}
+            roughness={0.5}
+            emissive={isSelected ? '#4ade80' : undefined}
+            emissiveIntensity={isSelected ? 0.5 : 0}
+          />
+        </mesh>
+      ))}
     </group>
   );
 };
@@ -107,8 +153,19 @@ const Knight = ({ color, isSelected }: PieceModelProps) => {
           emissiveIntensity={isSelected ? 0.5 : 0}
         />
       </mesh>
-      {/* Body */}
+      {/* Base Decoration */}
       <mesh position={[0, 0.05, 0]} castShadow receiveShadow>
+        <torusGeometry args={[0.3, 0.02, 16, 32]} />
+        <meshStandardMaterial
+          color={color === 'white' ? '#ffffff' : '#000000'}
+          metalness={0.5}
+          roughness={0.5}
+          emissive={isSelected ? '#4ade80' : undefined}
+          emissiveIntensity={isSelected ? 0.5 : 0}
+        />
+      </mesh>
+      {/* Body */}
+      <mesh position={[0, 0.1, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[0.25, 0.25, 0.3, 32]} />
         <meshStandardMaterial
           color={color === 'white' ? '#ffffff' : '#000000'}
@@ -118,8 +175,19 @@ const Knight = ({ color, isSelected }: PieceModelProps) => {
           emissiveIntensity={isSelected ? 0.5 : 0}
         />
       </mesh>
-      {/* Head */}
-      <mesh position={[0.1, 0.35, 0]} castShadow receiveShadow>
+      {/* Neck */}
+      <mesh position={[0, 0.35, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.15, 0.15, 0.2, 32]} />
+        <meshStandardMaterial
+          color={color === 'white' ? '#ffffff' : '#000000'}
+          metalness={0.5}
+          roughness={0.5}
+          emissive={isSelected ? '#4ade80' : undefined}
+          emissiveIntensity={isSelected ? 0.5 : 0}
+        />
+      </mesh>
+      {/* Head Base */}
+      <mesh position={[0.1, 0.55, 0]} castShadow receiveShadow>
         <sphereGeometry args={[0.15, 32, 32]} />
         <meshStandardMaterial
           color={color === 'white' ? '#ffffff' : '#000000'}
@@ -129,9 +197,9 @@ const Knight = ({ color, isSelected }: PieceModelProps) => {
           emissiveIntensity={isSelected ? 0.5 : 0}
         />
       </mesh>
-      {/* Ear */}
-      <mesh position={[0.2, 0.4, 0]} castShadow receiveShadow>
-        <coneGeometry args={[0.1, 0.2, 32]} />
+      {/* Snout */}
+      <mesh position={[0.2, 0.55, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.08, 0.08, 0.15, 32]} />
         <meshStandardMaterial
           color={color === 'white' ? '#ffffff' : '#000000'}
           metalness={0.5}
@@ -140,6 +208,41 @@ const Knight = ({ color, isSelected }: PieceModelProps) => {
           emissiveIntensity={isSelected ? 0.5 : 0}
         />
       </mesh>
+      {/* Ear */}
+      <mesh position={[0.2, 0.65, 0]} castShadow receiveShadow>
+        <coneGeometry args={[0.05, 0.15, 32]} />
+        <meshStandardMaterial
+          color={color === 'white' ? '#ffffff' : '#000000'}
+          metalness={0.5}
+          roughness={0.5}
+          emissive={isSelected ? '#4ade80' : undefined}
+          emissiveIntensity={isSelected ? 0.5 : 0}
+        />
+      </mesh>
+      {/* Mane */}
+      <mesh position={[0, 0.5, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.1, 0.1, 0.2, 32]} />
+        <meshStandardMaterial
+          color={color === 'white' ? '#ffffff' : '#000000'}
+          metalness={0.5}
+          roughness={0.5}
+          emissive={isSelected ? '#4ade80' : undefined}
+          emissiveIntensity={isSelected ? 0.5 : 0}
+        />
+      </mesh>
+      {/* Decorative Elements */}
+      {[-1, 1].map((side) => (
+        <mesh key={side} position={[side * 0.15, 0.3, 0]} castShadow receiveShadow>
+          <torusGeometry args={[0.1, 0.02, 16, 32]} />
+          <meshStandardMaterial
+            color={color === 'white' ? '#ffffff' : '#000000'}
+            metalness={0.5}
+            roughness={0.5}
+            emissive={isSelected ? '#4ade80' : undefined}
+            emissiveIntensity={isSelected ? 0.5 : 0}
+          />
+        </mesh>
+      ))}
     </group>
   );
 };

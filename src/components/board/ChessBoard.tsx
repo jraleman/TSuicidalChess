@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { Group } from 'three';
 import { ChessSquare } from './ChessSquare';
 import { useGameStore } from '../../context/gameStore';
@@ -7,7 +7,18 @@ import { soundManager } from '../../utils/soundManager';
 
 export const ChessBoard = () => {
   const boardRef = useRef<Group>(null);
-  const { selectedPiece, possibleMoves, movePiece, board } = useGameStore();
+  const { selectedPiece, possibleMoves, movePiece, board, aiMode, currentTurn, aiColor, makeAIMove } = useGameStore();
+
+  // Handle AI moves after player moves
+  useEffect(() => {
+    if (aiMode && currentTurn === aiColor) {
+      // Add a small delay to make AI moves feel more natural
+      const timer = setTimeout(() => {
+        makeAIMove();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [aiMode, currentTurn, aiColor, makeAIMove]);
 
   const handleSquareClick = (position: Position) => {
     if (!selectedPiece) return;

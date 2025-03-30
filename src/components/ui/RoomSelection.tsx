@@ -3,7 +3,7 @@ import { useGameStore } from '../../context/gameStore';
 import { roomService } from '../../services/roomService';
 
 export const RoomSelection = () => {
-  const { setGameMode, setPlayerColor, initializeGame } = useGameStore();
+  const { setGameMode, setPlayerColor } = useGameStore();
   const [roomCode, setRoomCode] = useState('');
   const [error, setError] = useState('');
   const [isCreating, setIsCreating] = useState(false);

@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { GameState, PieceColor, Position, ChessPiece, GameMode } from '../models/types';
 import { getValidMoves, hasForcedCapture } from '../utils/movementValidation';
 import { roomService } from '../services/roomService';
+import { aiService, DifficultyLevel } from '../services/aiService';
+import { soundManager } from '../utils/soundManager';
 
 interface GameStore extends GameState {
   initializeGame: () => void;
@@ -17,6 +19,9 @@ interface GameStore extends GameState {
   setGameMode: (mode: GameMode) => void;
   setPlayerColor: (color: PieceColor) => void;
   setRoomCode: (code: string) => void;
+  setAIMode: (enabled: boolean) => void;
+  setAIDifficulty: (difficulty: DifficultyLevel) => void;
+  makeAIMove: () => void;
 }
 
 const createPiece = (type: ChessPiece['type'], color: PieceColor, position: Position): ChessPiece => ({
@@ -60,6 +65,9 @@ const createInitialState = (): GameState => ({
   gameMode: null,
   playerColor: null,
   roomCode: undefined,
+  aiMode: true,
+  aiDifficulty: 'medium',
+  aiColor: null,
 });
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -70,13 +78,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   selectPiece: (piece: ChessPiece) => {
-    const { board, currentTurn, gameMode, playerColor, roomCode } = get();
+    const { board, currentTurn, gameMode, playerColor, aiMode } = get();
     
     // In multiplayer mode, only allow selecting pieces of the player's color
     if (gameMode === 'multiplayer' && piece.color !== playerColor) return;
     
-    // Only allow selecting pieces of the current turn
-    if (piece.color !== currentTurn) return;
+    // In AI mode, only allow selecting pieces of the current turn
+    if (aiMode && piece.color !== currentTurn) return;
 
     // Check if there are forced captures
     const hasForced = hasForcedCapture(board, currentTurn);
@@ -91,7 +99,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   movePiece: (from: Position, to: Position) => {
-    const { board, selectedPiece, currentTurn, scores, roomCode, gameMode, playerColor } = get();
+    const { board, selectedPiece, currentTurn, scores, roomCode, gameMode, playerColor, aiMode, aiDifficulty, aiColor } = get();
     
     if (!selectedPiece) return;
 
@@ -116,7 +124,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // Update scores if a piece was captured
     const newScores = { ...scores };
     if (board[to.y][to.x]) {
-      newScores[currentTurn] += 1;
+      newScores[currentTurn === 'white' ? 'black' : 'white'] += 1;
     }
 
     // Check for game over (all pieces captured)
@@ -133,7 +141,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       winner: whitePieces === 0 ? 'white' : blackPieces === 0 ? 'black' : null,
       gameMode,
       playerColor,
-      roomCode
+      roomCode,
+      aiMode,
+      aiDifficulty,
+      aiColor
     };
 
     set(newState);
@@ -167,6 +178,88 @@ export const useGameStore = create<GameStore>((set, get) => ({
     currentTurn: state.currentTurn === 'white' ? 'black' : 'white'
   })),
   setGameMode: (mode: GameMode) => set({ gameMode: mode }),
-  setPlayerColor: (color: PieceColor) => set({ playerColor: color }),
+  setPlayerColor: (color: PieceColor) => set({ 
+    playerColor: color,
+    aiColor: color === 'white' ? 'black' : 'white',
+    currentTurn: 'white'
+  }),
   setRoomCode: (code: string) => set({ roomCode: code }),
+  setAIMode: (enabled: boolean) => {
+    set({ aiMode: enabled });
+  },
+  setAIDifficulty: (difficulty: DifficultyLevel) => {
+    set({ aiDifficulty: difficulty });
+  },
+  makeAIMove: () => {
+    const { board, currentTurn, aiMode, aiDifficulty, aiColor } = get();
+    
+    if (!aiMode || !aiColor || currentTurn !== aiColor) return;
+
+    const bestMove = aiService.getBestMove(board, aiColor, aiDifficulty);
+    if (!bestMove) return;
+
+    // Check if there's a piece to capture
+    const targetPiece = board[bestMove.to.y][bestMove.to.x];
+    
+    // Trigger piece movement animation
+    const event = new CustomEvent('pieceMove', {
+      detail: { piece: bestMove.piece, to: bestMove.to }
+    });
+    window.dispatchEvent(event);
+
+    // If there's a piece to capture, trigger capture animation and sound
+    if (targetPiece) {
+      const captureEvent = new CustomEvent('pieceCapture', {
+        detail: { piece: targetPiece }
+      });
+      window.dispatchEvent(captureEvent);
+      soundManager.playCaptureSound();
+    }
+
+    // Update game state after animations
+    setTimeout(() => {
+      // Create new board with the move
+      const newBoard = board.map(row => [...row]);
+      newBoard[bestMove.to.y][bestMove.to.x] = bestMove.piece;
+      newBoard[bestMove.piece.position.y][bestMove.piece.position.x] = null;
+
+      // Update piece position
+      if (newBoard[bestMove.to.y][bestMove.to.x]) {
+        newBoard[bestMove.to.y][bestMove.to.x] = {
+          ...newBoard[bestMove.to.y][bestMove.to.x]!,
+          position: bestMove.to,
+          hasMoved: true
+        };
+      }
+
+      // Update scores if a piece was captured
+      const { scores } = get();
+      const newScores = { ...scores };
+      if (board[bestMove.to.y][bestMove.to.x]) {
+        newScores[currentTurn === 'white' ? 'black' : 'white'] += 1;
+      }
+
+      // Check for game over (all pieces captured)
+      const whitePieces = newBoard.flat().filter(p => p?.color === 'white').length;
+      const blackPieces = newBoard.flat().filter(p => p?.color === 'black').length;
+
+      const newState: GameState = {
+        board: newBoard,
+        selectedPiece: null,
+        possibleMoves: [],
+        scores: newScores,
+        currentTurn: currentTurn === 'white' ? 'black' : 'white',
+        gameOver: whitePieces === 0 || blackPieces === 0,
+        winner: whitePieces === 0 ? 'white' : blackPieces === 0 ? 'black' : null,
+        gameMode: get().gameMode,
+        playerColor: get().playerColor,
+        roomCode: get().roomCode,
+        aiMode: get().aiMode,
+        aiDifficulty: get().aiDifficulty,
+        aiColor: get().aiColor,
+      };
+
+      set(newState);
+    }, 500); // Match this with animation duration
+  },
 })); 

@@ -1,81 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { soundManager } from '../../utils/soundManager';
 
 export const SoundToggle = () => {
   const [isMuted, setIsMuted] = useState(soundManager.isSoundMuted());
-  const [showVolume, setShowVolume] = useState(false);
-  const [volume, setVolume] = useState(0.3);
-  const volumeRef = useRef<HTMLDivElement>(null);
-
-  // Handle clicks outside the volume control
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (volumeRef.current && !volumeRef.current.contains(event.target as Node)) {
-        setShowVolume(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleToggle = () => {
     soundManager.toggleMute();
     setIsMuted(soundManager.isSoundMuted());
   };
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    soundManager.setVolume(newVolume);
-  };
-
-  const handleVolumeClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-
   return (
-    <div className="fixed top-4 right-4 flex items-center space-x-2">
-      <div 
-        ref={volumeRef}
-        className={`relative transition-all duration-200 ${showVolume ? 'opacity-100' : 'opacity-0'}`}
-        onClick={handleVolumeClick}
-      >
-        <div className="absolute right-0 top-0 transform translate-x-1/2 -translate-y-1/2 bg-gray-800 rounded-lg p-3 shadow-lg">
-          <div className="flex flex-col items-center space-y-2">
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={volume}
-              onChange={handleVolumeChange}
-              className="w-32 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer
-                [&::-webkit-slider-thumb]:appearance-none
-                [&::-webkit-slider-thumb]:w-4
-                [&::-webkit-slider-thumb]:h-4
-                [&::-webkit-slider-thumb]:rounded-full
-                [&::-webkit-slider-thumb]:bg-white
-                [&::-webkit-slider-thumb]:cursor-pointer
-                [&::-webkit-slider-thumb]:transition-all
-                [&::-webkit-slider-thumb]:hover:scale-110
-                [&::-moz-range-thumb]:w-4
-                [&::-moz-range-thumb]:h-4
-                [&::-moz-range-thumb]:rounded-full
-                [&::-moz-range-thumb]:bg-white
-                [&::-moz-range-thumb]:cursor-pointer
-                [&::-moz-range-thumb]:transition-all
-                [&::-moz-range-thumb]:hover:scale-110"
-            />
-            <div className="text-xs text-gray-300">
-              {Math.round(volume * 100)}%
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="fixed top-4 right-4">
       <button
         onClick={handleToggle}
-        onMouseEnter={() => setShowVolume(true)}
         className="p-2 rounded-full bg-gray-800 text-white hover:bg-gray-700 transition-colors
           focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
         aria-label={isMuted ? 'Unmute sound' : 'Mute sound'}

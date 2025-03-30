@@ -1,3 +1,5 @@
+import { DifficultyLevel } from '../services/aiService';
+
 export type PieceColor = 'white' | 'black';
 export type PieceType = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
 
@@ -39,4 +41,7 @@ export interface GameState {
   gameMode: GameMode;
   playerColor: PieceColor | null;
   roomCode?: string;
+  aiMode: boolean;
+  aiDifficulty: DifficultyLevel;
+  aiColor: PieceColor | null;
 } 

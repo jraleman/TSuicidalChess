@@ -22,7 +22,10 @@ class RoomService {
         winner: null,
         gameMode: 'multiplayer',
         playerColor: null,
-        roomCode: code
+        roomCode: code,
+        aiMode: false,
+        aiDifficulty: 'easy',
+        aiColor: null
       }
     };
     this.rooms.set(code, room);

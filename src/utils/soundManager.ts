@@ -9,13 +9,13 @@ class SoundManager {
     // Create audio element with multiple source formats
     this.captureSound = new Audio();
     const source = document.createElement('source');
-    source.src = '/sounds/capture.mp3';
+    source.src = 'sounds/capture.mp3';
     source.type = 'audio/mpeg';
     this.captureSound.appendChild(source);
 
     // Add fallback source
     const fallbackSource = document.createElement('source');
-    fallbackSource.src = '/sounds/capture.wav';
+    fallbackSource.src = 'sounds/capture.wav';
     fallbackSource.type = 'audio/wav';
     this.captureSound.appendChild(fallbackSource);
 
@@ -50,11 +50,6 @@ class SoundManager {
 
     // Clone the audio element to allow multiple simultaneous plays
     const sound = this.captureSound.cloneNode() as HTMLAudioElement;
-    sound.volume = this.captureSound.volume;
-
-    // Add slight randomization to pitch for more natural feel
-    const randomPitch = 0.95 + Math.random() * 0.1; // Random pitch between 0.95 and 1.05
-    sound.playbackRate = randomPitch;
 
     // Add error handling for playback
     sound.addEventListener('error', (e) => {
@@ -64,7 +59,6 @@ class SoundManager {
         'tvT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU' +
         'tvT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU' +
         'tvT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU');
-      beep.volume = this.captureSound.volume;
       beep.play().catch(console.error);
     });
 
@@ -84,11 +78,6 @@ class SoundManager {
 
   public isSoundMuted(): boolean {
     return this.isMuted;
-  }
-
-  public setVolume(volume: number): void {
-    const clampedVolume = Math.max(0, Math.min(1, volume));
-    this.captureSound.volume = clampedVolume;
   }
 }
 
