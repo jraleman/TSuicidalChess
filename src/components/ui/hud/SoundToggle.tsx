@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { soundManager } from '../../utils/soundManager';
+import { soundManager } from '../../../utils/soundManager';
 
 export const SoundToggle = () => {
   const [isMuted, setIsMuted] = useState(soundManager.isSoundMuted());

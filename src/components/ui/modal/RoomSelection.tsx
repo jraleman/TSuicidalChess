@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useGameStore } from '../../context/gameStore';
-import { roomService } from '../../services/roomService';
+import { useGameStore } from '../../../context/gameStore';
+import { roomService } from '../../../services/roomService';
 
 export const RoomSelection = () => {
   const { setGameMode, setPlayerColor } = useGameStore();
@@ -13,6 +13,10 @@ export const RoomSelection = () => {
     setIsCreating(true);
     const room = roomService.createRoom();
     setRoomCode(room.code);
+  };
+
+  const handleLocalMultiplayer = () => {
+    setGameMode('multiplayer-local');
   };
 
   const handleCopyCode = async () => {
@@ -44,7 +48,9 @@ export const RoomSelection = () => {
     // Set player color based on room assignment
     const playerColor = room.players.white === playerId ? 'white' : 'black';
     setPlayerColor(playerColor);
-    setGameMode('multiplayer');
+    setGameMode('multiplayer-room');
+
+    window.alert('TODO: Implement room joining functionality for multiplayer');
   };
 
   return (
@@ -56,6 +62,28 @@ export const RoomSelection = () => {
           {!isCreating ? (
             <div className="grid grid-cols-1 gap-6">
               <button
+                onClick={handleLocalMultiplayer}
+                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-6 px-8 rounded-lg transition-all duration-200 flex items-center justify-center space-x-3 transform hover:scale-105"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                </svg>
+                <div className="text-left">
+                  <span className="text-xl block">Local Multiplayer</span>
+                  <span className="text-sm text-gray-300">Play on the same device</span>
+                </div>
+              </button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-600"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-gray-800 text-gray-400">or</span>
+                </div>
+              </div>
+
+              <button
                 onClick={handleCreateRoom}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 px-8 rounded-lg transition-all duration-200 flex items-center justify-center space-x-3 transform hover:scale-105"
               >
@@ -63,8 +91,8 @@ export const RoomSelection = () => {
                   <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                 </svg>
                 <div className="text-left">
-                  <span className="text-xl block">Create Room</span>
-                  <span className="text-sm text-gray-300">Start a new game</span>
+                  <span className="text-xl block">Create Online Room</span>
+                  <span className="text-sm text-gray-300">Play with someone online</span>
                 </div>
               </button>
 
@@ -94,7 +122,7 @@ export const RoomSelection = () => {
                     <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                   <div className="text-left">
-                    <span className="text-xl block">Join Room</span>
+                    <span className="text-xl block">Join Online Room</span>
                     <span className="text-sm text-gray-300">Enter room code to join</span>
                   </div>
                 </button>
@@ -144,6 +172,17 @@ export const RoomSelection = () => {
               </div>
             </div>
           )}
+          <div className="max-w-md w-full mx-auto mt-6 flex justify-center">
+            <button
+              onClick={() => window.location.reload()}
+              className="text-gray-400 hover:text-white transition-colors flex items-center justify-center space-x-2"
+              >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+              </svg>
+              <span>Back to Main Menu</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

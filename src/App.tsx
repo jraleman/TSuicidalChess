@@ -3,14 +3,15 @@ import { OrbitControls, Environment } from '@react-three/drei';
 import { Suspense } from 'react';
 import { ChessBoard } from './components/board/ChessBoard';
 import { ChessPieces } from './components/pieces/ChessPieces';
-import { SoundToggle } from './components/ui/SoundToggle';
-import { StatusBar } from './components/ui/StatusBar';
-import { GameOverModal } from './components/ui/GameOverModal';
-import { GameModeSelection } from './components/ui/GameModeSelection';
-import { LeaveRoom } from './components/ui/LeaveRoom';
-import { ColorSelection } from './components/ui/ColorSelection';
+import { SoundToggle } from './components/ui/hud/SoundToggle';
+import { StatusBar } from './components/ui/hud/StatusBar';
+import { GameOverModal } from './components/ui/modal/GameOverModal';
+import { GameModeSelection } from './components/ui/modal/GameModeSelection';
+import { LeaveRoom } from './components/ui/hud/LeaveRoom';
+import { ColorSelection } from './components/ui/modal/ColorSelection';
+import { RoomSelection } from './components/ui/modal/RoomSelection';
 import { useGameStore } from './context/gameStore';
-import { RoomSelection } from './components/ui/RoomSelection';
+
 function App() {
   const { gameMode, playerColor, roomCode } = useGameStore();
 
@@ -24,7 +25,7 @@ function App() {
   }
 
   // Show room selection if in multiplayer mode but no room is selected
-  if (gameMode === 'multiplayer' && !roomCode) {
+  if ((!roomCode && gameMode === 'multiplayer-room')) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
         <RoomSelection />
@@ -33,7 +34,7 @@ function App() {
   }
 
   // Show color selection if multiplayer mode is selected but no color is chosen
-  if (!playerColor) {
+  if (!playerColor && gameMode === 'single') {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
         <ColorSelection />
@@ -48,8 +49,8 @@ function App() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-white">TSuicidalChess ♟♟️</h1>
-              {gameMode === 'multiplayer' && roomCode && (
+              <h1 className="text-2xl font-bold text-white">TTTSuicidalChess ♟♟️</h1>
+              {gameMode === 'multiplayer-room' && roomCode && (
                 <div className="bg-gray-700 px-3 py-1 rounded-lg flex items-center space-x-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
@@ -68,7 +69,15 @@ function App() {
         {/* Game container */}
         <div className="w-full aspect-square max-w-4xl mx-auto rounded-lg overflow-hidden shadow-2xl bg-gray-800">
           <Canvas
-            camera={{ position: [0, 5, playerColor === 'white' ? -10 : 10], fov: 60 }}
+            camera={{ 
+              fov: 60,
+              position: [
+                0,
+                gameMode === 'multiplayer-local' ? 25 : 5,
+                playerColor === 'white' || gameMode === 'multiplayer-local' ? -10 : 10
+              ],
+              zoom: 1
+            }}
             className="w-full h-full"
             shadows
             >
@@ -91,14 +100,16 @@ function App() {
               <Environment preset="sunset" />
               
               <OrbitControls
+                enableZoom
+                enableDamping
                 enablePan={false}
                 enableRotate={false}
-                minDistance={10}
-                maxDistance={15}
-                minPolarAngle={Math.PI / 5}
-                maxPolarAngle={Math.PI / 2.5}
+                minDistance={5}
+                maxDistance={25}
+                minPolarAngle={Math.PI / 4}
+                maxPolarAngle={Math.PI / 2}
                 minZoom={1}
-                maxZoom={1}
+                maxZoom={5}
               />
             </Suspense>
           </Canvas>
@@ -112,7 +123,7 @@ function App() {
       <GameOverModal />
 
       {/* Leave Room Button (only in multiplayer mode) */}
-      {gameMode === 'multiplayer' && <LeaveRoom />}
+      {gameMode === 'multiplayer-room' && <LeaveRoom />}
     </div>
   );
 }

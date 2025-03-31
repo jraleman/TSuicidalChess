@@ -20,7 +20,7 @@ class RoomService {
         scores: { white: 0, black: 0 },
         gameOver: false,
         winner: null,
-        gameMode: 'multiplayer',
+        gameMode: 'multiplayer-room',
         playerColor: null,
         roomCode: code,
         aiMode: false,

@@ -1,5 +1,5 @@
-import { useGameStore } from '../../context/gameStore';
-import { roomService } from '../../services/roomService';
+import { useGameStore } from '../../../context/gameStore';
+import { roomService } from '../../../services/roomService';
 
 export const LeaveRoom = () => {
   const { roomCode, setGameMode, initializeGame } = useGameStore();

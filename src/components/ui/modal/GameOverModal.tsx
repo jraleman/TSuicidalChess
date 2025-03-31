@@ -1,5 +1,5 @@
-import { useGameStore } from '../../context/gameStore';
-import { PieceColor } from '../../models/types';
+import { useGameStore } from '../../../context/gameStore';
+import { PieceColor } from '../../../models/types';
 
 export const GameOverModal = () => {
   const { gameOver, winner, scores, initializeGame } = useGameStore();

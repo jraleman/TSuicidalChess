@@ -81,10 +81,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const { board, currentTurn, gameMode, playerColor, aiMode } = get();
     
     // In multiplayer mode, only allow selecting pieces of the player's color
-    if (gameMode === 'multiplayer' && piece.color !== playerColor) return;
-    
+    if (gameMode === 'multiplayer-room' && piece.color !== playerColor) return;
+
     // In AI mode, only allow selecting pieces of the current turn
-    if (aiMode && piece.color !== currentTurn) return;
+    if (gameMode === 'single' && aiMode && piece.color !== currentTurn) return;
+
+    if (gameMode === 'multiplayer-local' && piece.color !== currentTurn) return;
 
     // Check if there are forced captures
     const hasForced = hasForcedCapture(board, currentTurn);

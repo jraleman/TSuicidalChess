@@ -1,8 +1,61 @@
-# TSuicidalChess ♟♟️
+# TTTSuicidalChess ♟♟️
 
-A modern 3D anti-chess game built with React, Three.js, and TypeScript. In this unique twist on chess, players must strategically lose their pieces to win the game.
+A modern 3D anti-chess game built with Three.js, TailwindCSS and TypeScript with React, hence the name (TTTS)uicidal Chess ;)
 
-[Live Demo](https://jraleman.com/TSuicidalChess)
+> In this unique twist on chess, players must strategically lose their pieces to win the game.
+
+[Live Demo](https://jraleman.com/TTTSuicidalChess)
+
+## 📁 Project Structure
+
+```
+TTTSuicidalChess/
+├── src/
+│   ├── components/         # React components
+│   │   ├── Board/         # Chess board and piece components
+│   │   ├── UI/            # User interface components
+│   │   └── Game/          # Game-related components
+│   ├── services/          # Game logic and services
+│   │   ├── chess/         # Chess rules and validation
+│   │   └── game/          # Game state management
+│   ├── models/            # TypeScript interfaces and types
+│   ├── utils/             # Utility functions and helpers
+│   ├── hooks/             # Custom React hooks
+│   ├── context/           # React context providers
+│   ├── App.tsx            # Main application component
+│   └── main.tsx           # Application entry point
+├── public/                # Static assets
+├── dist/                  # Production build output
+└── config files          # Various configuration files
+```
+
+### Key Files and Their Purposes
+
+#### Components
+- `src/components/Board/`: Contains the 3D chess board implementation
+  - `ChessBoard.tsx`: Main board component with Three.js integration
+  - `Piece.tsx`: Individual chess piece component
+- `src/components/UI/`: User interface components
+  - `StatusBar.tsx`: Game status and score display
+  - `Controls.tsx`: Game control buttons and settings
+- `src/components/Game/`: Game-specific components
+  - `GameOver.tsx`: Game over modal and results display
+
+#### Services
+- `src/services/chess/`: Chess game logic
+  - `rules.ts`: Chess movement rules and validation
+  - `board.ts`: Board state management
+- `src/services/game/`: Game state management
+  - `store.ts`: Zustand store for game state
+  - `actions.ts`: Game actions and state updates
+
+#### Core Files
+- `src/App.tsx`: Main application component and game container
+- `src/main.tsx`: Application entry point and React initialization
+- `src/models/`: TypeScript interfaces for game entities
+- `src/utils/`: Helper functions for game logic
+- `src/hooks/`: Custom React hooks for game functionality
+- `src/context/`: React context providers for global state
 
 ## 🎮 Game Rules
 
@@ -28,8 +81,8 @@ A modern 3D anti-chess game built with React, Three.js, and TypeScript. In this 
 ### Installation
 1. Clone the repository:
 ```bash
-git clone https://github.com/jraleman/TSuicidalChess.git
-cd TSuicidalChess
+git clone https://github.com/jraleman/TTTSuicidalChess.git
+cd TTTSuicidalChess
 ```
 
 2. Install dependencies:
@@ -147,14 +200,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - All contributors and supporters
 
 ## 🔮 Future Enhancements
-- Multiplayer mode
-- Leaderboard integration
-- AI opponent
-- Custom piece models
-- More sound effects
-- Achievement system
-- Tutorial mode
-- Game replay feature
+- [-] Game Modes
+  - [x] Free mode (single player)
+  - [x] AI opponent
+  - [x] Multiplayer (local)
+  - [-] Room Multiplayer (online)
+- [ ] More sound effects
+- [ ] Game replay feature
+  - [ ] Save game replay as file
+  - [ ] Upload file and play game replay
 
 ## 📞 Support
 For support, please open an issue in the GitHub repository or contact the maintainers.

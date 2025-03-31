@@ -16,7 +16,7 @@ export interface ChessPiece {
   hasMoved: boolean;
 }
 
-export type GameMode = 'single' | 'multiplayer' | null;
+export type GameMode = 'single' | 'multiplayer-room' | 'multiplayer-local' | null;
 
 export interface Room {
   code: string;
