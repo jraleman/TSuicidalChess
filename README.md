@@ -12,18 +12,21 @@ A modern 3D anti-chess game built with Three.js, TailwindCSS and TypeScript with
 TTTSuicidalChess/
 ├── src/
 │   ├── components/         # React components
-│   │   ├── Board/         # Chess board and piece components
-│   │   ├── UI/            # User interface components
-│   │   └── Game/          # Game-related components
+│   │   ├── board/         # Chess board components
+│   │   ├── pieces/        # Chess piece components
+│   │   └── ui/            # User interface components
 │   ├── services/          # Game logic and services
-│   │   ├── chess/         # Chess rules and validation
-│   │   └── game/          # Game state management
+│   │   ├── aiService.ts   # AI opponent logic
+│   │   └── roomService.ts # Multiplayer room management
 │   ├── models/            # TypeScript interfaces and types
 │   ├── utils/             # Utility functions and helpers
 │   ├── hooks/             # Custom React hooks
 │   ├── context/           # React context providers
 │   ├── App.tsx            # Main application component
-│   └── main.tsx           # Application entry point
+│   ├── App.css            # Main application styles
+│   ├── index.css          # Global styles
+│   ├── main.tsx           # Application entry point
+│   └── vite-env.d.ts      # Vite environment declarations
 ├── public/                # Static assets
 ├── dist/                  # Production build output
 └── config files          # Various configuration files
@@ -32,22 +35,22 @@ TTTSuicidalChess/
 ### Key Files and Their Purposes
 
 #### Components
-- `src/components/Board/`: Contains the 3D chess board implementation
+- `src/components/board/`: Contains the 3D chess board implementation
   - `ChessBoard.tsx`: Main board component with Three.js integration
-  - `Piece.tsx`: Individual chess piece component
-- `src/components/UI/`: User interface components
+  - `Square.tsx`: Individual square component
+- `src/components/pieces/`: Chess piece components
+  - `Piece.tsx`: Base piece component
+  - Individual piece components (Pawn, Knight, etc.)
+- `src/components/ui/`: User interface components
   - `StatusBar.tsx`: Game status and score display
   - `Controls.tsx`: Game control buttons and settings
-- `src/components/Game/`: Game-specific components
   - `GameOver.tsx`: Game over modal and results display
 
 #### Services
-- `src/services/chess/`: Chess game logic
-  - `rules.ts`: Chess movement rules and validation
-  - `board.ts`: Board state management
-- `src/services/game/`: Game state management
-  - `store.ts`: Zustand store for game state
-  - `actions.ts`: Game actions and state updates
+- `src/services/aiService.ts`: AI opponent implementation
+  - Handles AI move generation and difficulty levels
+- `src/services/roomService.ts`: Multiplayer room management
+  - Handles room creation, joining, and game state synchronization
 
 #### Core Files
 - `src/App.tsx`: Main application component and game container
@@ -56,6 +59,8 @@ TTTSuicidalChess/
 - `src/utils/`: Helper functions for game logic
 - `src/hooks/`: Custom React hooks for game functionality
 - `src/context/`: React context providers for global state
+- `src/index.css`: Global styles and Tailwind imports
+- `src/App.css`: Application-specific styles
 
 ## 🎮 Game Rules
 
@@ -200,15 +205,62 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - All contributors and supporters
 
 ## 🔮 Future Enhancements
-- [-] Game Modes
-  - [x] Free mode (single player)
-  - [x] AI opponent
-  - [x] Multiplayer (local)
-  - [-] Room Multiplayer (online)
-- [ ] More sound effects
-- [ ] Game replay feature
-  - [ ] Save game replay as file
-  - [ ] Upload file and play game replay
+
+### Game Features
+- [ ] Router support for components view (App.tsx)
+- [ ] Room Multiplayer (online)
+  - [ ] Fix room game mode implementation
+  - [ ] Implement username system
+  - [ ] Add spectator mode
+  - [ ] Add chat system between players
+- [ ] Practice Mode
+  - [ ] Position setup and analysis
+  - [ ] Move validation feedback
+  - [ ] Common patterns and strategies guide
+- [ ] Add game save/load
+  - [ ] Add game replay system
+  - [ ] Add move annotations
+  - [ ] Add game sharing
+- [ ] Statistics and Analytics
+  - [ ] Add player statistics
+  - [ ] Add game analytics
+  - [ ] Add performance graphs
+  - [ ] Add achievement system
+
+### UI/UX Improvements
+- [ ] Game Interface
+  - [ ] Automatic zoom level based on screen size
+  - [ ] Automatic board centering
+  - [ ] Highlight forced captures
+  - [ ] Optional movement preview
+  - [ ] Add piece movement arrows
+  - [ ] Add move history panel
+  - [ ] Add captured pieces display
+- [ ] Visual Enhancements
+  - [ ] Add particle effects for captures
+  - [ ] Add piece movement trails
+  - [ ] Add board themes (wood, marble, etc.)
+  - [ ] Add piece themes (classic, modern, etc.)
+  - [ ] Add board rotation controls
+  - [ ] Add camera angle presets
+- [ ] Sound and Audio
+  - [ ] Add background music
+  - [ ] Add more sound effects
+- [ ] Menu and Navigation
+  - [ ] Add animated transitions
+  - [ ] Add game settings panel
+  - [ ] Add keyboard shortcuts
+  - [ ] Add tooltips and help system
+  - [ ] Add accessibility options
+
+### Documentation
+- [ ] Add FAQ section
+- [ ] Add comprehensive game rules
+- [ ] Add strategy guides
+- [ ] Add developer documentation
+- [ ] Add video tutorials
+
+> Note: All features are designed to work with the current tech stack and GitHub Pages hosting. Some features may require additional dependencies but will be chosen to maintain compatibility and performance.
 
 ## 📞 Support
 For support, please open an issue in the GitHub repository or contact the maintainers.
